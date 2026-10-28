@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Models\Quiz;
+use App\Models\User;
 use App\Services\QuizGenerator;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -131,5 +133,88 @@ class GuestModeTest extends TestCase
         $resultResponse->assertSee('/1');
         $resultResponse->assertSee('100%');
         $resultResponse->assertSee('Create Free Account');
+    }
+
+    public function test_guest_can_select_ai_provider_and_saves_to_session(): void
+    {
+        $this->mock(QuizGenerator::class, function (MockInterface $mock) {
+            $mock->shouldReceive('generate')
+                ->once()
+                ->withArgs(function ($notes, $type, $n, $provider) {
+                    return $provider === 'ollama';
+                })
+                ->andReturn([
+                    [
+                        'question' => 'Sample local question?',
+                        'options' => ['A', 'B'],
+                        'answer' => 0,
+                        'explanation' => 'Explanation.',
+                    ],
+                ]);
+        });
+
+        $notes = str_repeat('Sample notes for testing provider selection on the frontend. ', 3);
+
+        $response = $this->post(route('quiz.generate'), [
+            'notes' => $notes,
+            'type' => 'mcq',
+            'n' => 1,
+            'provider' => 'ollama',
+        ]);
+
+        $response->assertRedirect(route('quiz.guest.show'));
+        $this->assertTrue(session()->has('guest_quiz'));
+        $this->assertSame('ollama', session('guest_quiz')['provider']);
+    }
+
+    public function test_authenticated_user_provider_selection_saves_to_database(): void
+    {
+        $user = User::factory()->create();
+
+        $this->mock(QuizGenerator::class, function (MockInterface $mock) {
+            $mock->shouldReceive('generate')
+                ->once()
+                ->withArgs(function ($notes, $type, $n, $provider) {
+                    return $provider === 'gemini';
+                })
+                ->andReturn([
+                    [
+                        'question' => 'Sample cloud question?',
+                        'options' => ['A', 'B'],
+                        'answer' => 0,
+                        'explanation' => 'Explanation.',
+                    ],
+                ]);
+        });
+
+        $notes = str_repeat('Sample notes for testing provider selection on the frontend. ', 3);
+
+        $response = $this->actingAs($user)->post(route('quiz.generate'), [
+            'notes' => $notes,
+            'type' => 'mcq',
+            'n' => 1,
+            'provider' => 'gemini',
+        ]);
+
+        $this->assertDatabaseHas('quizzes', [
+            'user_id' => $user->id,
+            'provider' => 'gemini',
+        ]);
+        $quiz = Quiz::where('user_id', $user->id)->first();
+        $response->assertRedirect(route('quiz.show', $quiz));
+    }
+
+    public function test_invalid_provider_selection_fails_validation(): void
+    {
+        $notes = str_repeat('Sample notes for testing provider selection on the frontend. ', 3);
+
+        $response = $this->post(route('quiz.generate'), [
+            'notes' => $notes,
+            'type' => 'mcq',
+            'n' => 1,
+            'provider' => 'unsupported_engine',
+        ]);
+
+        $response->assertSessionHasErrors('provider');
     }
 }

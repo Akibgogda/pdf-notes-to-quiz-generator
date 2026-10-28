@@ -24,6 +24,11 @@
                     <span class="text-xs uppercase font-bold px-2 py-0.5 rounded-full {{ $attempt->quiz->type === 'mcq' ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20' : 'bg-purple-500/10 text-purple-400 border border-purple-500/20' }}">
                         {{ $attempt->quiz->type === 'mcq' ? 'Multiple Choice' : 'Fill in Blank' }}
                     </span>
+                    @if(!empty($attempt->quiz->provider))
+                        <span class="text-xs font-semibold px-2 py-0.5 rounded-full {{ $attempt->quiz->provider === 'gemini' ? 'bg-amber-500/10 text-amber-300 border border-amber-500/20' : 'bg-cyan-500/10 text-cyan-300 border border-cyan-500/20' }}">
+                            {{ $attempt->quiz->provider === 'gemini' ? '✨ Gemini' : '🦙 Ollama' }}
+                        </span>
+                    @endif
                     <span class="text-xs text-slate-400">&bull; Attempted on {{ $attempt->created_at->format('M d, Y \a\t h:i A') }}</span>
                 </div>
                 <h1 class="heading-font text-2xl font-bold text-white">{{ $attempt->quiz->title }}</h1>

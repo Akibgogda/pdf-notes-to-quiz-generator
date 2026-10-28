@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
     'document_id',
     'title',
     'type',
+    'provider',
     'question_count',
     'questions',
 ])]

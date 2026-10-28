@@ -36,9 +36,9 @@ TXT;
      *
      * @throws RuntimeException
      */
-    public function generate(string $notes, string $type, int $n = 3, int $retries = 2): array
+    public function generate(string $notes, string $type, int $n = 3, ?string $provider = null, int $retries = 2): array
     {
-        $provider = config('services.ai_provider', 'ollama');
+        $provider = $provider ?: config('services.ai_provider', 'gemini');
 
         if ($provider === 'gemini') {
             return $this->generateWithGemini($notes, $type, $n, $retries);

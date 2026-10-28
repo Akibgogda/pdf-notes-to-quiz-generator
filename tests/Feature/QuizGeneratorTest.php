@@ -134,4 +134,38 @@ class QuizGeneratorTest extends TestCase
         $this->assertCount(1, $questions);
         $this->assertSame('What is the speed of light in vacuum?', $questions[0]['question']);
     }
+
+    public function test_explicit_provider_parameter_overrides_config_provider(): void
+    {
+        config([
+            'services.ai_provider' => 'gemini',
+            'services.ollama.url' => 'http://localhost:11434',
+            'services.ollama.model' => 'qwen2.5:3b',
+        ]);
+
+        Http::fake([
+            'localhost:11434/*' => Http::response([
+                'message' => [
+                    'content' => json_encode([
+                        'questions' => [
+                            [
+                                'question' => 'What is the powerhouse of the cell?',
+                                'options' => ['Mitochondria', 'Nucleus', 'Ribosome', 'Vacuole'],
+                                'answer' => 0,
+                                'explanation' => 'Mitochondria generate ATP.',
+                            ],
+                        ],
+                    ]),
+                ],
+            ], 200),
+        ]);
+
+        $generator = new QuizGenerator;
+        // Config says gemini, but we explicitly pass 'ollama'
+        $questions = $generator->generate('Mitochondria produce ATP.', 'mcq', 1, 'ollama');
+
+        $this->assertCount(1, $questions);
+        Http::assertSent(fn ($req) => str_contains($req->url(), 'localhost:11434'));
+        Http::assertNotSent(fn ($req) => str_contains($req->url(), 'generativelanguage.googleapis.com'));
+    }
 }

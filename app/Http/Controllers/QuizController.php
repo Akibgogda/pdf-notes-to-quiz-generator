@@ -33,6 +33,7 @@ class QuizController extends Controller
             'document_id' => ['nullable', 'integer', 'exists:documents,id'],
             'type' => ['required', 'in:mcq,fill'],
             'n' => ['required', 'integer', 'min:1', 'max:10'],
+            'provider' => ['nullable', 'string', 'in:gemini,ollama'],
         ]);
 
         $user = $request->user();
@@ -104,8 +105,10 @@ class QuizController extends Controller
 
         set_time_limit(0);
 
+        $provider = $data['provider'] ?? config('services.ai_provider', 'gemini');
+
         try {
-            $questions = $generator->generate($text, $data['type'], (int) $data['n']);
+            $questions = $generator->generate($text, $data['type'], (int) $data['n'], $provider);
         } catch (\Throwable $e) {
             return back()->withInput()->withErrors([
                 'notes' => $e->getMessage() ?: 'Could not generate quiz from the configured AI service.',
@@ -124,6 +127,7 @@ class QuizController extends Controller
                 'guest_quiz' => [
                     'title' => $title,
                     'type' => $data['type'],
+                    'provider' => $provider,
                     'question_count' => count($questions),
                     'questions' => $questions,
                     'created_at' => now()->toFormattedDateString(),
@@ -139,6 +143,7 @@ class QuizController extends Controller
             'document_id' => $documentId,
             'title' => $title,
             'type' => $data['type'],
+            'provider' => $provider,
             'question_count' => count($questions),
             'questions' => $questions,
         ]);

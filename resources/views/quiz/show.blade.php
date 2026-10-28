@@ -11,6 +11,11 @@
                     <span class="text-xs uppercase font-bold px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">
                         {{ $quiz->type === 'mcq' ? 'Multiple Choice' : 'Fill in the Blank' }}
                     </span>
+                    @if(!empty($quiz->provider))
+                        <span class="text-xs font-semibold px-2 py-0.5 rounded-full {{ $quiz->provider === 'gemini' ? 'bg-amber-500/10 text-amber-300 border border-amber-500/20' : 'bg-cyan-500/10 text-cyan-300 border border-cyan-500/20' }}">
+                            {{ $quiz->provider === 'gemini' ? '✨ Gemini' : '🦙 Ollama' }}
+                        </span>
+                    @endif
                     <span class="text-xs text-slate-400">&bull; {{ $quiz->question_count }} Questions</span>
                 </div>
                 <h1 class="heading-font text-2xl sm:text-3xl font-bold text-white">{{ $quiz->title }}</h1>

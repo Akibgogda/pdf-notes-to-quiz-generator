@@ -194,6 +194,61 @@
                     </label>
                 </div>
 
+                <!-- AI Engine / Model Selection -->
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <label class="text-xs font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                            <svg class="w-4 h-4 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                            AI Model / Engine
+                        </label>
+                        <span class="text-[11px] text-slate-400">Default: {{ config('services.ai_provider') === 'gemini' ? 'Google Gemini' : 'Ollama' }}</span>
+                    </div>
+
+                    @php
+                        $defaultProvider = old('provider', config('services.ai_provider', 'gemini'));
+                    @endphp
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <!-- Google Gemini Option -->
+                        <label class="relative flex items-start gap-3 p-3.5 rounded-xl border border-slate-800 bg-slate-950/50 hover:bg-slate-900 hover:border-indigo-500/50 cursor-pointer transition group">
+                            <input type="radio" 
+                                   name="provider" 
+                                   value="gemini" 
+                                   {{ $defaultProvider === 'gemini' ? 'checked' : '' }} 
+                                   class="mt-1 text-indigo-600 focus:ring-indigo-500 bg-slate-900 border-slate-700">
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm font-semibold text-white group-hover:text-indigo-300 transition">
+                                        ✨ Google Gemini
+                                    </span>
+                                    <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Cloud & Fast</span>
+                                </div>
+                                <p class="text-xs text-slate-400 mt-1">High-speed reasoning via {{ config('services.gemini.model', 'gemini-3.5-flash-lite') }}. Completes in ~1-2s.</p>
+                            </div>
+                        </label>
+
+                        <!-- Ollama Option -->
+                        <label class="relative flex items-start gap-3 p-3.5 rounded-xl border border-slate-800 bg-slate-950/50 hover:bg-slate-900 hover:border-indigo-500/50 cursor-pointer transition group">
+                            <input type="radio" 
+                                   name="provider" 
+                                   value="ollama" 
+                                   {{ $defaultProvider === 'ollama' ? 'checked' : '' }} 
+                                   class="mt-1 text-indigo-600 focus:ring-indigo-500 bg-slate-900 border-slate-700">
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm font-semibold text-white group-hover:text-indigo-300 transition">
+                                        🦙 Ollama
+                                    </span>
+                                    <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">Local & Offline</span>
+                                </div>
+                                <p class="text-xs text-slate-400 mt-1">Runs on your local server via {{ config('services.ollama.model', 'qwen2.5:3b') }}. 100% private.</p>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
                 <!-- Number of Questions -->
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl bg-slate-950/50 border border-slate-800">
                     <div>

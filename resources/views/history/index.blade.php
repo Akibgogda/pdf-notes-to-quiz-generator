@@ -55,6 +55,11 @@
                                 <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full {{ $att->quiz->type === 'mcq' ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20' : 'bg-purple-500/10 text-purple-400 border border-purple-500/20' }}">
                                     {{ $att->quiz->type === 'mcq' ? 'MCQ' : 'Fill Blank' }}
                                 </span>
+                                @if(!empty($att->quiz->provider))
+                                    <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full {{ $att->quiz->provider === 'gemini' ? 'bg-amber-500/10 text-amber-300 border border-amber-500/20' : 'bg-cyan-500/10 text-cyan-300 border border-cyan-500/20' }}">
+                                        {{ $att->quiz->provider === 'gemini' ? '✨ Gemini' : '🦙 Ollama' }}
+                                    </span>
+                                @endif
 
                                 <span class="text-xs text-slate-400">
                                     {{ $att->created_at->format('M d, Y &bull; h:i A') }}
